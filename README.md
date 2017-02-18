@@ -96,7 +96,7 @@ Sad.  It looks like our httpd servers went away.  I guess we'll have to dig furt
 
 ## <a name="8000"></a>:8000
 
-Thanks to the [Zmodo - Local Controller project over on Hackaday](https://hackaday.io/project/8642-zmodo-local-controller), we know that most Zmodo cameras respond to commands that look vaguely like `55 55 aa aa 00 00 00 00 00 00 00 50`.  I created an [ugly little perl script](8000/scan.pl) to scan the last two bytes, sending every possible combination and listening for responses.  I noticed that the middle 00 bytes don't need to be 00, but I haven't figured out what they really are yet, so I'm leaving them alone in this scan.  Every response starts with a header very similar to the command sent.  Sometimes some of the 00 are changed, but the `55 55 aa aa` is always there and the last two bytes are always the same as the command.  Here's a very incomplete list of commands and responses:
+Thanks to the [Zmodo - Local Controller project over on Hackaday](https://hackaday.io/project/8642-zmodo-local-controller), we know that most Zmodo cameras respond to commands that look vaguely like `55 55 aa aa 00 00 00 00 00 00 00 50`.  I created an [ugly little perl script](8000/scan.pl) to scan the last two bytes, sending every possible combination and listening for responses.  I noticed that the middle `00` bytes don't need to be `00`, but I haven't figured out what they really are yet, so I'm leaving them alone in this scan.  Every response starts with a header very similar to the command sent.  Sometimes some of the `00` are changed, but the `55 55 aa aa` is always there and the last two bytes are always the same as the command.  Here's a very incomplete list of commands and responses:
 
 |Command|Response|Bin|
 |---|---|---|
