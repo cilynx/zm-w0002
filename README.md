@@ -147,6 +147,6 @@ You can adjust the focus of the lens by screwing it into or out of its housing. 
 
 ![teardown7](https://cloud.githubusercontent.com/assets/6083980/23096678/3cb5e492-f5d6-11e6-9488-dcdbf028afd8.jpg)
 
-I didn't feel like soldering anything to the board in that tiny space, so I just bent a couple [female to male jumper wires](http://amzn.to/2lW25jO) 90-degree s and bread tied them to the board.  I was out of rubber bands.  Don't judge.  The other end is a [cheap CP2102 USB<->RS232 adaptor](http://amzn.to/2luLl27) feeding [GtkTerm](https://fedorahosted.org/gtkterm/) `115200-8-N-1`.
+I didn't feel like soldering anything to the board in that tiny space, so I just bent a couple [female to male jumper wires](http://amzn.to/2lW25jO) 90-degrees and bread tied them to the board.  I was out of rubber bands.  Don't judge.  The other end is a [cheap CP2102 USB<->RS232 adaptor](http://amzn.to/2luLl27) feeding [GtkTerm](https://fedorahosted.org/gtkterm/) `115200-8-N-1`.
 
 ![teardown8](https://cloud.githubusercontent.com/assets/6083980/23096679/3cb86a96-f5d6-11e6-8e88-99b564f842a6.jpg)
