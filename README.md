@@ -1,3 +1,13 @@
+# Table of Contents
+
+- [Overview](#overview)
+- [Setup Services](#setup_services)
+	- [:8086](#8086)
+	- [:8087](#8087)
+- [Production Services](#production_services)
+	- [:8000](#8000)
+- [Physical Teardown](#physical_teardown)
+
 # <a name="overview"></a>zm-w0002
 
 The zm-w0002 is a super-cheap outdoor security camera that you can [pick up on Amazon](http://amzn.to/2kwasCJ) in a 4-pack for $99.99.
@@ -7,14 +17,6 @@ The zm-w0002 is a super-cheap outdoor security camera that you can [pick up on A
 I know what you're thinking... *Dude, you can't shake a stick at 4 weatherproof wifi cameras delivered to my door for $100.*  Unfortunately, you can.  These cameras are so cheap because Zmodo has removed every feature you might want to setup a *secure* locale *security* system and instead ships all of your data to their cloud service for later viewing on their proprietary mobile app.  Out of the box, these cameras will not work with *anything* other than the proprietary kitsch they're bundled with.
 
 Luckily, it's powered by the popular and well documented HiSilicon Hi3518 SoC ([Datasheet](https://github.com/cilynx/zm-w0002/files/782566/Hi3518-Datasheet.pdf), [User Guide](https://github.com/cilynx/zm-w0002/files/782568/Hi3518-UserGuide.pdf)).
-
-# Table of Contents
-
-- [Setup Services](#setup_services)
-	- [:8086](#8086)
-	- [:8087](#8087)
-- [Production Services](#production_services)
-	- [:8000](#8000)
 
 # <a name="setup_services"></a>Setup Services
 
@@ -99,7 +101,7 @@ Thanks to the [Zmodo - Local Controller project over on Hackaday](https://hackad
 |Command|Response|Bin|
 |---|---|---|
 |00 91|Looks like a config dump.  Has some directory names as well as the wifi ssid, channel, and password.  Also contains whatever it is that 00 9c sets.|[0091.bin](8000/0091.bin)|
-|00 98|Model number, something that looks like a UID, a 10-digit integer, and two version strings.|[0098.bin](8000/0098.bin)|
+|00 98|Model number, something that looks like a UID, a 10-digit identifier that is also physically screened on the bord, and two version strings.|[0098.bin](8000/0098.bin)|
 |00 99|Binary I haven't figured out yet.  Contains whatever 00 9c sets|[0099.bin](8000/0099.bin)|
 |00 9c|Sets *something*.  [This guy](https://hackaday.io/project/8642-zmodo-local-controller/discussion-54904) thinks it's the MAC address, but I've been unable to confirm.||
 |01 9c|Returns whatever was set by 00 9c||
@@ -107,3 +109,44 @@ Thanks to the [Zmodo - Local Controller project over on Hackaday](https://hackad
 |12 a1|Wifi site survey||
 |36 96|An AES key stored in a file named "key" on the filesystem.  A quick google search for the key on my test device didn't turn up any hits, so it may be unique per device.  I'll update this section once I get inside another camera.||
 |71 7a|Wifi channel||
+
+# <a name="physical_teardown"></a>Physical Teardown
+
+Poking at the network is fun and all, but let's tear this thing apart...
+
+![teardown1](https://cloud.githubusercontent.com/assets/6083980/23096675/3ca45254-f5d6-11e6-8f87-9cbe8cb8dba9.jpg)
+
+Yup, that's a desiccant pouch like you find in beef jerky stuffed in there.  I guess that's one way to keep things dry.
+
+![teardown2](https://cloud.githubusercontent.com/assets/6083980/23096672/3ca3a4d0-f5d6-11e6-98a3-5aa49aef1d20.jpg)
+
+I haven't investigated the IR LEDs much yet.  Will update here if I ever get that far.
+
+![teardown3](https://cloud.githubusercontent.com/assets/6083980/23096673/3ca3f05c-f5d6-11e6-922a-4362ea96ad8a.jpg)
+
+The main camera body, still in one piece.
+
+![teardown4](https://cloud.githubusercontent.com/assets/6083980/23096674/3ca4100a-f5d6-11e6-8446-28648ce1549f.jpg)
+
+Here's the fun side of the board.  A few points of note:
+- The three pads in the upper middle are an active RS232 port.
+- The chip in the upper right is a RTL8188EUS 2.4GHz radio.
+- The gray lead right next to the radio is its antenna.
+- The empty headers in the picture are where the IR LEDs hook up.
+- There's a 4-pin USB header, but only power and ground are connected.  I haven't yet tried connecting the data lines to see if it'll talk to an outside computer.
+- The screws in the middle hold the lens assembly to the board.
+- The sloppily installed ceramic heatsink is covering the Hi3518 SoC.
+
+![teardown5](https://cloud.githubusercontent.com/assets/6083980/23096676/3ca52544-f5d6-11e6-880e-3e6722a41488.jpg)
+
+Here, we can see the surface-mounted imager under the lens assembly.  Also note `79990304 REV3.0` screened on the board.  We get that number back from a `00 98` request as well.
+
+![teardown6](https://cloud.githubusercontent.com/assets/6083980/23096677/3ca6bdb4-f5d6-11e6-9554-9362ba1cbf40.jpg)
+
+You can adjust the focus of the lens by screwing it into or out of its housing.  The spring just keeps everything tight.
+
+![teardown7](https://cloud.githubusercontent.com/assets/6083980/23096678/3cb5e492-f5d6-11e6-9488-dcdbf028afd8.jpg)
+
+I didn't feel like soldering anything to the board in that tiny space, so I just bent a couple [female to male jumper wires](http://amzn.to/2lW25jO) 90-degree s and bread tied them to the board.  I was out of rubber bands.  Don't judge.  The other end is a [cheap CP2102 USB<->RS232 adaptor](http://amzn.to/2luLl27) feeding [GtkTerm](https://fedorahosted.org/gtkterm/) `115200-8-N-1`.
+
+![teardown8](https://cloud.githubusercontent.com/assets/6083980/23096679/3cb86a96-f5d6-11e6-8e88-99b564f842a6.jpg)
