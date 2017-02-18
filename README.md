@@ -8,6 +8,13 @@ I know what you're thinking... *Dude, you can't shake a stick at 4 weatherproof 
 
 Luckily, it's powered by the popular and well documented HiSilicon Hi3518 SoC ([Datasheet](https://github.com/cilynx/zm-w0002/files/782566/Hi3518-Datasheet.pdf), [User Guide](https://github.com/cilynx/zm-w0002/files/782568/Hi3518-UserGuide.pdf)).
 
+# Table of Contents
+
+- [Setup Services](#setup_services)
+	- [:8086](#8086)
+	- [:8087](#8087)
+- [Production Services](#production_services)
+
 # <a name="setup_services"></a>Setup Services
 
 According to the [Quick Start Guide](http://support.zmodo.com/assets/media/quick_user_guide_en/ZM-W0002-4_quick_guide.pdf), you're supposed to power up your cameras, then download the [MeShare App](http://surveillance.zmodo.com/meshare-app) ([iPhone](https://itunes.apple.com/us/app/meshare/id977910819?mt=8), [Android](https://play.google.com/store/apps/details?id=com.meshare&hl=en)) which will walk you through creating a [MeShare Account](https://user.meshare.com/user/login), transferring you network creds to your camera(s), and viewing your live streams on your phone.  There's no way I'm installing an app on my phone to access a "free" amorphous cloud service, nor am I sending my network creds or survalence data to said amorphous cloud service in the first place.  So, let's see what's really going on.
@@ -66,3 +73,32 @@ Surprise! It failed.  Sad.  I guess we need some values after all.  Let's try `f
 Success!  I haven't yet found which files this updates, but at this point, the camera will stop broadcasting `ZMD_SAP` and will join your provided network, asking for an address over DHCP.  Keep in mind that these cameras only have 2.4GHz radios ([RTL8188EUS](http://www.realtek.com/search/default.aspx?keyword=rtl8188) to be exact), so they will not see your 5GHz networks.  If all went well and it successfully joined your network, the camera will now switch from setup mode to production mode.
 
 # <a name="production_services"></a>Production Services
+
+Let's start by scanning the camera from a machine on the same lab network:
+```
+rcw@burner:~/Projects/zmodo$ nmap 192.168.1.170
+
+Starting Nmap 7.40 ( https://nmap.org ) at 2017-02-14 18:40 PST
+Nmap scan report for 192.168.1.170
+Host is up (0.032s latency).
+Not shown: 998 closed ports
+PORT     STATE SERVICE
+4444/tcp open  krb524
+8000/tcp open  http-alt
+
+Nmap done: 1 IP address (1 host up) scanned in 0.65 seconds
+rcw@burner:~/Projects/zmodo$ 
+```
+Sad.  It looks like our httpd servers went away.  I guess we'll have to dig further into what we do have.  Thanks to the [Zmodo - Local Controller project over on Hackaday](https://hackaday.io/project/8642-zmodo-local-controller), we know that these cameras respond to commands that look vaguely like `55 55 aa aa 00 00 00 00 00 00 00 50`.  I created an [ugly little perl script](8000/scan.pl) to scan the last two bytes, sending every possible combination and listening for responses.  I noticed that the middle 00 bytes don't need to be 00, but I haven't figured out what they really are yet, so I'm leaving them alone in this scan.  Every response starts with a header very similar to the command sent.  Sometimes some of the 00 are changed, but the `55 55 aa aa` is always there and the last two bytes are always the same as the command.  Here's a very incomplete list of commands and responses:
+
+|Command|Response|Bin|
+|---|---|---|
+|00 91|Looks like a config dump.  Has some directory names as well as the wifi ssid, channel, and password.  Also contains whatever it is that 00 9c sets.|[0091.bin](8000/0091.bin)|
+|00 98|Model number, something that looks like a UID, a 10-digit integer, and two version strings.|[0098.bin](8000/0098.bin)|
+|00 99|Binary I haven't figured out yet.  Contains whatever 00 9c sets|[0099.bin](8000/0099.bin)|
+|00 9c|Sets *something*.  [This guy](https://hackaday.io/project/8642-zmodo-local-controller/discussion-54904) thinks it's the MAC address, but I've been unable to confirm.||
+|01 9c|Returns whatever was set by 00 9c||
+|11 90|Some version strings||
+|12 a1|Wifi site survey||
+|36 96|An AES key stored in a file named "key" on the filesystem.  A quick google search for the key on my test device didn't turn up any hits, so it may be unique per device.  I'll update this section once I get inside another camera.||
+|71 7a|Wifi channel||
