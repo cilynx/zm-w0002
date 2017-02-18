@@ -1,4 +1,4 @@
-# zm-w0002
+# <a name="overview"></a>zm-w0002
 
 The zm-w0002 is a super-cheap outdoor security camera that you can [pick up on Amazon](http://amzn.to/2kwasCJ) in a 4-pack for $99.99.
 
@@ -8,7 +8,7 @@ I know what you're thinking... *Dude, you can't shake a stick at 4 weatherproof 
 
 Luckily, it's powered by the popular and well documented HiSilicon Hi3518 SoC ([Datasheet](https://github.com/cilynx/zm-w0002/files/782566/Hi3518-Datasheet.pdf), [User Guide](https://github.com/cilynx/zm-w0002/files/782568/Hi3518-UserGuide.pdf)).
 
-# Setup Services
+# <a name="setup_services"></a>Setup Services
 
 According to the [Quick Start Guide](http://support.zmodo.com/assets/media/quick_user_guide_en/ZM-W0002-4_quick_guide.pdf), you're supposed to power up your cameras, then download the [MeShare App](http://surveillance.zmodo.com/meshare-app) ([iPhone](https://itunes.apple.com/us/app/meshare/id977910819?mt=8), [Android](https://play.google.com/store/apps/details?id=com.meshare&hl=en)) which will walk you through creating a [MeShare Account](https://user.meshare.com/user/login), transferring you network creds to your camera(s), and viewing your live streams on your phone.  There's no way I'm installing an app on my phone to access a "free" amorphous cloud service, nor am I sending my network creds or survalence data to said amorphous cloud service in the first place.  So, let's see what's really going on.
 
@@ -37,7 +37,7 @@ rcw@antec:~$
 
 I haven't figured out what's going on with `4444` yet and we'll talk about `8000` later.  For now, let's focus on the two httpd servers running on `8086` and `8087`.
 
-## 8086
+## <a name="8086"></a>:8086
 
 Pulling up `192.168.10.1:8086` in a browser gives us a tidy little web form, with the requisite spelling error on the `Concle` button. 
 
@@ -49,7 +49,7 @@ It looks like it's asking for numerical input, so I figured I'd feed it some non
 
 Success!  We'll see later that this form updates a conf file on the filesystem with what appears to be no validation whatsoever.  I need to do a little exploring here to see if I can exploit this form to start `telnetd` (which is available on the system, just not running by default) and avoid tearing the rest of my cameras apart to access their serial consoles.
 
-## 8087
+## <a name="8087"></a>:8087
 
 Pulling `192.168.10.1:8087` in a brower gives us another tidy little web form, once again with the `Concle` button.
 
@@ -65,4 +65,4 @@ Surprise! It failed.  Sad.  I guess we need some values after all.  Let's try `f
 
 Success!  I haven't yet found which files this updates, but at this point, the camera will stop broadcasting `ZMD_SAP` and will join your provided network, asking for an address over DHCP.  Keep in mind that these cameras only have 2.4GHz radios ([RTL8188EUS](http://www.realtek.com/search/default.aspx?keyword=rtl8188) to be exact), so they will not see your 5GHz networks.  If all went well and it successfully joined your network, the camera will now switch from setup mode to production mode.
 
-# Production Services
+# <a name="production_services"></a>Production Services
