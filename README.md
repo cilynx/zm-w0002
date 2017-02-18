@@ -14,6 +14,7 @@ Luckily, it's powered by the popular and well documented HiSilicon Hi3518 SoC ([
 	- [:8086](#8086)
 	- [:8087](#8087)
 - [Production Services](#production_services)
+	- [:8000](#8000)
 
 # <a name="setup_services"></a>Setup Services
 
@@ -42,7 +43,7 @@ Nmap done: 1 IP address (1 host up) scanned in 172.82 seconds
 rcw@antec:~$ 
 ```
 
-I haven't figured out what's going on with `4444` yet and we'll talk about `8000` later.  For now, let's focus on the two httpd servers running on `8086` and `8087`.
+I haven't figured out what's going on with `4444` yet and we'll talk about `8000` [later](#8000).  For now, let's focus on the two httpd servers running on `8086` and `8087`.
 
 ## <a name="8086"></a>:8086
 
@@ -89,7 +90,11 @@ PORT     STATE SERVICE
 Nmap done: 1 IP address (1 host up) scanned in 0.65 seconds
 rcw@burner:~/Projects/zmodo$ 
 ```
-Sad.  It looks like our httpd servers went away.  I guess we'll have to dig further into what we do have.  Thanks to the [Zmodo - Local Controller project over on Hackaday](https://hackaday.io/project/8642-zmodo-local-controller), we know that these cameras respond to commands that look vaguely like `55 55 aa aa 00 00 00 00 00 00 00 50`.  I created an [ugly little perl script](8000/scan.pl) to scan the last two bytes, sending every possible combination and listening for responses.  I noticed that the middle 00 bytes don't need to be 00, but I haven't figured out what they really are yet, so I'm leaving them alone in this scan.  Every response starts with a header very similar to the command sent.  Sometimes some of the 00 are changed, but the `55 55 aa aa` is always there and the last two bytes are always the same as the command.  Here's a very incomplete list of commands and responses:
+Sad.  It looks like our httpd servers went away.  I guess we'll have to dig further into what we do have.  
+
+## <a name="8000"></a>:8000
+
+Thanks to the [Zmodo - Local Controller project over on Hackaday](https://hackaday.io/project/8642-zmodo-local-controller), we know that most Zmodo cameras respond to commands that look vaguely like `55 55 aa aa 00 00 00 00 00 00 00 50`.  I created an [ugly little perl script](8000/scan.pl) to scan the last two bytes, sending every possible combination and listening for responses.  I noticed that the middle 00 bytes don't need to be 00, but I haven't figured out what they really are yet, so I'm leaving them alone in this scan.  Every response starts with a header very similar to the command sent.  Sometimes some of the 00 are changed, but the `55 55 aa aa` is always there and the last two bytes are always the same as the command.  Here's a very incomplete list of commands and responses:
 
 |Command|Response|Bin|
 |---|---|---|
