@@ -7,6 +7,10 @@
 - [Production Services](#production_services)
 	- [:8000](#8000)
 - [Physical Teardown](#physical_teardown)
+- [Building Software](#building_software)
+	- [Toolchain Setup](#toolchain_setup)
+	- [Dropbear (SSH)](#dropbear)
+
 
 # <a name="overview"></a>zm-w0002
 
@@ -150,3 +154,14 @@ You can adjust the focus of the lens by screwing it into or out of its housing. 
 I didn't feel like soldering anything to the board in that tiny space, so I just bent a couple [female to male jumper wires](http://amzn.to/2lW25jO) 90-degrees and bread tied them to the board.  I was out of rubber bands.  Don't judge.  The other end is a [cheap CP2102 USB<->RS232 adaptor](http://amzn.to/2luLl27) feeding [GtkTerm](https://fedorahosted.org/gtkterm/) `115200-8-N-1`.
 
 ![teardown8](https://cloud.githubusercontent.com/assets/6083980/23096679/3cb86a96-f5d6-11e6-8e88-99b564f842a6.jpg)
+
+# <a name="building_software"></a> Building Software
+Enough fooling around with what's already there.  Let's run our own code on this thing.
+## <a name="toolchain_setup"></a> Toolchain Setup
+While there are lots of folks out there talking about the Hi3518 SDK, actually finding a copy of it isn't so easy.  I'm not sure what the deal is.  All of the [official links from HiSilicon](http://www.hisilicon.com/products/digital.html) are dead, so I don't know if they would have contained the SDK or not.  The only thing I could find out there was [one guy](http://yumichan.net/linux/how-to-run-a-shell-script-at-startup-on-hisilicons-hi3518/) who says that he got the SDK along with the Hi3518 board when he ordered one.  At any rate, you can [get the SDK here](https://mega.co.nz/#!69tXHCAD!spJmcKzH3WUmOOyTMVxIc07N4m6Bu8m3ziDhURaKjgM), but be warned, it's an anonymous MEGA upload.  I didn't do the upload, but it is the SDK that I'm using.  I cannot vouch for the cleanlyness / health of the SDK and it does ask for root access (to access `/opt`) as part of the install.  I would advise installing the SDK in a dedicated / disposable VM, especially if you get it from the MEGA link.
+
+At any rate, setting up a toolchain is fairly straightforward, but I'm lazy, so I googled around and found [Nemon's IPR1631X page](http://nemon.org/ipcam-ipr1631x/#SDK) where he outlines the steps.  Continuing in my laziness, I wrote a little [bash script](setup_toolchain.sh) to setup the toolchain for me.  The whole thing should run with no errors and at the end, you'll have the `arm-hisiv100-linux` toolchain available in your `$PATH`.
+
+## <a name="dropbear"></a> Dropbear (SSH)
+
+Out-of-the-box, we already have `telnetd` and `ftpd` available and we're living on a local lab network, so `dropbear` is a little unnecessary, however, I'm already pretty familiar with cross-compiling it from [previous](http://github.com/cilynx/Candyhouse-Linux) [projects](http://github.com/cilynx/DGND3700v2) and it's a great test to see if the toolchain is working.  Of course I put together a little [bash script](build_dropbear.sh) to build `dropbear` just the way I like it.  After running the script, you'll find a `dropbearmulti` binary in `dropbear-2016.74/` which will run nicely on the camera.  
